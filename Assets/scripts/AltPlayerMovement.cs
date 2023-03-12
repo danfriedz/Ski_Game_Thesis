@@ -16,6 +16,7 @@ public class AltPlayerMovement : MonoBehaviour
    [SerializeField] public Animator Crowd_RHS;
    [SerializeField] public Sprite[] SkiPhotos;
    [SerializeField] public bool altRotationFlag = true; //rotate in strech zone?
+   [SerializeField] public float originYOffset = -1;  //move player center position slightly to account for background
 
    Objective_Spawner objScript;
    //private Objective_Spawner objScript = ObjSpawn.GetComponent<Objective_Spawner>();
@@ -33,6 +34,7 @@ public class AltPlayerMovement : MonoBehaviour
    { 
       lockPlayerToCameraBoundary();
       rotatePlayerViaKeys();
+      scalePlayer();
       //horizontalForceWithAngle();
       //movePlayerInDirection();
       transformPlayerToLocation();
@@ -51,7 +53,16 @@ public class AltPlayerMovement : MonoBehaviour
       const int WorldPosX = 12, WorldPosY = 7;
       float XPosPercent = Input.GetAxis("Horizontal") * WorldPosX;
       float YPosPercent = Input.GetAxis("Vertical") * WorldPosY;
-      transform.position = Vector3.Lerp(transform.position, new Vector3(XPosPercent,YPosPercent,0),Time.deltaTime * 2);
+      transform.position = Vector3.Lerp(transform.position, new Vector3(XPosPercent,YPosPercent + originYOffset,0),Time.deltaTime * 2);
+   }
+
+   //player y axis effects scale
+   void scalePlayer()
+   {
+      //desmos regresion ~1.3 close to screen, ~0.4 far from screen
+      float scaleFormula = -0.202f*transform.position.y + 0.926f;
+      Vector3 distFromOrigin = new Vector3(scaleFormula,scaleFormula,1);
+      transform.localScale = Vector3.Lerp(transform.localScale,distFromOrigin, Time.deltaTime*10);
    }
 
    //Prevent the player from moving outside the bounds of the camera
@@ -59,7 +70,8 @@ public class AltPlayerMovement : MonoBehaviour
    {
       Vector3 minScreenBounds = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0));
       Vector3 maxScreenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
-      transform.position = new Vector3(Mathf.Clamp(transform.position.x, minScreenBounds.x + 1, maxScreenBounds.x - 1),Mathf.Clamp(transform.position.y, minScreenBounds.y + 1, maxScreenBounds.y - 1), transform.position.z);
+      //y position changed to - 3.5 from - 1 to stop player entering foreground graphics
+      transform.position = new Vector3(Mathf.Clamp(transform.position.x, minScreenBounds.x + 1, maxScreenBounds.x - 1),Mathf.Clamp(transform.position.y, minScreenBounds.y + 1, maxScreenBounds.y - 3.5f), transform.position.z);
    }
 
    //left/right movement tilts the player sprite.
