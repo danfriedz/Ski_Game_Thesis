@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
    private float HorizontalSpeed = 0.0f;
    public float smoothRotation = 5.0f;
    public float tiltAngleMax = 60.0f;
-   public float timeScaleSlowdown = 0.7f;
+   public float timeScaleSlowdown = 0.95f;
    private Rigidbody2D rb;
    public Animator Photo_LHS;
    public SpriteRenderer Photo_LSH_SR;
@@ -25,7 +25,8 @@ public class PlayerMovement : MonoBehaviour
    { 
       lockPlayerToCameraBoundary();
       rotatePlayerViaKeys();
-      horizontalForceWithAngle();
+      //horizontalForceWithAngle();
+      movePlayerInDirection();
       //Speed boost (currently unused)
       if (Input.GetKeyDown("left ctrl"))
       {
@@ -54,6 +55,14 @@ public class PlayerMovement : MonoBehaviour
    {
       HorizontalSpeed = Mathf.Clamp(baseSpeed * transform.rotation.z * Mathf.Rad2Deg * -1,-maxSpeed,maxSpeed);
       rb.AddForce(new Vector2(HorizontalSpeed,0));
+   }
+
+   // move player in direction (keys 2 cardinal for now. upgrade to imu later)
+   void movePlayerInDirection()
+   {
+      float HorizontalMove = Input.GetAxis("Horizontal") * baseSpeed * 10;
+      float VerticalMove = Input.GetAxis("Vertical") * baseSpeed * 10;
+      rb.AddForce(new Vector2(HorizontalMove,VerticalMove));
    }
 
    void OnTriggerEnter2D(Collider2D col)

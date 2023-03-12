@@ -24,7 +24,8 @@ public class collisionSpawner : MonoBehaviour
         if (spawnTop)
         {
             //Pick a position within a set range to spawn object
-            Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),15,0);
+                        //Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),15,0);
+            Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),3.3f,0);
             //Spawn a predefined object
             Instantiate(Tree_Drop, randomizePosition, Quaternion.identity);
         }

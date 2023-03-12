@@ -11,6 +11,11 @@ TagManager:
   - icon
   - Collision_Center
   - jump
+  - Left
+  - Right
+  - Up
+  - Down
+  - objSpawn
   layers:
   - Default
   - TransparentFX
