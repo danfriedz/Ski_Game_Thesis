@@ -106,13 +106,16 @@ public class AltPlayerMovement : MonoBehaviour
       }
 
       //slow down fx (move out of character controller)
+      
       if(col.gameObject.tag == "obstacle")
       {
+      /*not happy with this right now
          if (Time.timeScale == 1.0f)
          {
             Time.timeScale = timeScaleSlowdown;
          }
          else Time.timeScale = 1.0f;
+      */
          
          // visual feedback. Should be moved out of character controller
          Photo_LHS.Play("snapshot");
@@ -138,13 +141,16 @@ public class AltPlayerMovement : MonoBehaviour
    //reset slow down FX (move out of character controller)
    void OnTriggerExit2D(Collider2D col) {
       if((col.gameObject.tag == "Left") || (col.gameObject.tag == "Right") || (col.gameObject.tag == "Up") ||(col.gameObject.tag == "Down"))
-      {objScript.startStrechRoutine("Stop");}
+      {
+         objScript.startStrechRoutine("Stop");
+      }
 
-
+      /*
       if(col.gameObject.tag == "obstacle"){
          if (Time.timeScale != 1.0f){
             Time.timeScale = 1.0f;
          }
       }
+      */
    }
 }

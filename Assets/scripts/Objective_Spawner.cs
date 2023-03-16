@@ -12,7 +12,7 @@ public class Objective_Spawner : MonoBehaviour
     static int numDownStreches = 3;
 
     private float elapsedTime = 0.0f;
-    private float holdDuration = 5.0f;
+    private float holdDuration = 3.0f;
     private bool startTimerFlag = false;
     private bool countOnceFlag = false;
 
@@ -28,6 +28,7 @@ public class Objective_Spawner : MonoBehaviour
     [SerializeField] public SpriteRenderer RightSprite;
     [SerializeField] public SpriteRenderer UpSprite;
     [SerializeField] public SpriteRenderer DownSprite;
+    [SerializeField] public SpriteRenderer AmazingUI;
 
     private Color StrechGo = new Color(1,1,1,1);
 
@@ -36,10 +37,12 @@ public class Objective_Spawner : MonoBehaviour
 
     void Start()
     {
-        LeftCountUI.text = "";
-        RightCountUI.text = "";
-        UpCountUI.text = "";
-        DownCountUI.text = "";
+        LeftCountUI.text = "Remaining Streches: " + numLeftStreches;
+        RightCountUI.text = "Remaining Streches: " + numRightStreches;
+        UpCountUI.text = "Remaining Streches: " + numUpStreches;
+        DownCountUI.text = "Remaining Streches: " + numDownStreches;
+        holdTimeTextUI.text = "Hold that strech!";
+        AmazingUI.enabled = false;
     }
     
     void Update()
@@ -58,12 +61,13 @@ public class Objective_Spawner : MonoBehaviour
             if((int)elapsedTime == holdDuration)
             {
                 print("Hold Done");
+                AmazingUI.enabled = true;
                 lowerStrechCounter();
             }
         }
         else {elapsedTime = 0;}
         //UI element for visual feedback
-        holdTimeTextUI.text = elapsedTime.ToString("#.00");
+        holdTimeTextUI.text = elapsedTime.ToString("0.00");
     }
 
     void lowerStrechCounter()
@@ -81,16 +85,16 @@ public class Objective_Spawner : MonoBehaviour
     void updateUI()
     {
         if(localCurrentLocation == 0){
-            LeftCountUI.text = strechCount[localCurrentLocation].ToString();
+            LeftCountUI.text = "Remaining Streches: " + strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 1){
-            RightCountUI.text = strechCount[localCurrentLocation].ToString();
+            RightCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 2){
-            UpCountUI.text = strechCount[localCurrentLocation].ToString();
+            UpCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 3){
-            DownCountUI.text = strechCount[localCurrentLocation].ToString();
+            DownCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
         }
     }
 
@@ -123,6 +127,7 @@ public class Objective_Spawner : MonoBehaviour
         //not implemented currently
         if (locationStr == "Stop")
         {
+            AmazingUI.enabled = false;
             startTimerFlag = false;
             localCurrentLocation = 10;
             visualFeedback(localCurrentLocation);

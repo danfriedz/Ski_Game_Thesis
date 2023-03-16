@@ -461,6 +461,8 @@ MonoBehaviour:
   TreeLerpTime: 5
   treeMaxSize: 3
   icon: {fileID: 4745983093439446721, guid: 5d7bc8ff01fcb004d9647cfcdd39b1f4, type: 3}
+  sidewaysAdjustment: 2
+  player: {fileID: 673036068546107634, guid: 409af65879e8ddf4aa920e4d877a638b, type: 3}
 --- !u!61 &2175763654194675249
 BoxCollider2D:
   m_ObjectHideFlags: 0

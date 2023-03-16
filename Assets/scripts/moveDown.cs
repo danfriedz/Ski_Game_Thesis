@@ -9,11 +9,14 @@ public class moveDown : MonoBehaviour
     [SerializeField] public float TreeLerpTime = 7;
     [SerializeField] public float treeMaxSize = 1.0f;
     [SerializeField] public GameObject icon;
+    [SerializeField] public float sidewaysAdjustment = 2.0f;
+
 
     void Start()
     {
         positionToMoveTo = new Vector2(transform.position.x,transform.position.y-30);
         StartCoroutine(StartMovements(treeMaxSize, TreeLerpTime));
+        
     }
 
     void Update()
@@ -30,7 +33,7 @@ public class moveDown : MonoBehaviour
             time += Time.deltaTime;
             if(time > 2)
             {
-                StartCoroutine(LerpPosition(positionToMoveTo, TreeLerpTime));
+                StartCoroutine(LerpPosition(positionToMoveTo, TreeLerpTime));  
             }
             yield return null;
         }
@@ -41,6 +44,9 @@ public class moveDown : MonoBehaviour
         float time = 0;
         Vector2 startPosition = transform.position;
 
+        float horizOffsetFormula = sidewaysAdjustment*startPosition.x;
+        positionToMoveTo = new Vector2(transform.position.x+horizOffsetFormula,transform.position.y-30);
+
         if (transform.position.y > 7)
         {
             Instantiate(icon, new Vector3(transform.position.x,4,0), Quaternion.identity);
@@ -48,8 +54,12 @@ public class moveDown : MonoBehaviour
         
         while (time < duration)
         {
-            transform.position = Vector2.Lerp(startPosition, targetPosition, time / duration);
+            //transform.position = Vector2.Lerp(startPosition, targetPosition, time / duration);
+            //float formula = 0.207734f*time*time-0.105f;//0.9f * Mathf.Pow(2.718f,(69f * time));
+            transform.position = Vector2.Lerp(startPosition, positionToMoveTo, time / duration);
+
             time += Time.deltaTime;
+            print(time);
 
             yield return null;
         }

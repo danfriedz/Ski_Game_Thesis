@@ -39,8 +39,6 @@ public class cameraFollow : MonoBehaviour
 
         transform.position = PixelPerfectClamp(smoothFollow, PixelsPerUnit);//smoothFollow;
         //transform.LookAt(target);
-
-        print(rotated3dFX);
     }
     
     private Vector3 PixelPerfectClamp(Vector3 moveVector, float pixelsPerUnit)
