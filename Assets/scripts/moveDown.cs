@@ -7,7 +7,7 @@ public class moveDown : MonoBehaviour
     [SerializeField] public float dropSpeed = 5.0f;
     [SerializeField] public Vector2 positionToMoveTo;
     [SerializeField] public float TreeLerpTime = 7;
-    [SerializeField] public float treeMaxSize = 1.0f;
+    [SerializeField] public float treeMaxSize = 10.0f;
     [SerializeField] public GameObject icon;
     [SerializeField] public float sidewaysAdjustment = 2.0f;
 
@@ -31,7 +31,7 @@ public class moveDown : MonoBehaviour
         {
             transform.localScale = Vector2.Lerp(new Vector2(0,0),new Vector2(treeMaxSize,treeMaxSize), time / duration);
             time += Time.deltaTime;
-            if(time > 2)
+            if(time > 1)
             {
                 StartCoroutine(LerpPosition(positionToMoveTo, TreeLerpTime));  
             }
