@@ -2,14 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using static UnityEngine.UIElements.UxmlAttributeDescription;
+using System.Security.Cryptography;
 
 public class Objective_Spawner : MonoBehaviour
 {
+   // public static Objective_Spawner Instance { get; private set; }
+
     //from options menu, global perhaps
-    static int numLeftStreches = 3;
-    static int numRightStreches = 3;
-    static int numUpStreches = 3;
-    static int numDownStreches = 3;
+    static int numLeftStreches = 50;
+    static int numRightStreches;//= PersistentManagerScript.Singleton_numRightStreches;
+    static int numUpStreches;// = PersistentManagerScript.Singleton_numUpStreches;
+    static int numDownStreches;
+
+    static int numPro = PersistentManagerScript.Singleton_numOfPronation;
+    static int numSup = PersistentManagerScript.Singleton_numOfSupination;
 
     private float elapsedTime = 0.0f;
     private float holdDuration = 3.0f;
@@ -30,25 +37,68 @@ public class Objective_Spawner : MonoBehaviour
     [SerializeField] public SpriteRenderer DownSprite;
     [SerializeField] public SpriteRenderer AmazingUI;
 
+    [SerializeField] public Animator Photo_LHS;
+    [SerializeField] public SpriteRenderer Photo_LSH_SR;
+    [SerializeField] public Animator Crowd_RHS;
+    [SerializeField] public Sprite[] SkiPhotos;
+
+    //[SerializeField] public GameObject PersistanceManager;
+    private PersistentManagerScript _manager;
+
     private Color StrechGo = new Color(1,1,1,1);
 
     //Array strechNames = ["Left","Right","Up","Down"];
-    private int[] strechCount = {numLeftStreches,numRightStreches,numUpStreches,numDownStreches};
+    private int[] strechCount = {numLeftStreches, numRightStreches,numUpStreches,numDownStreches};
+    //private int[] strechCount;
 
     void Start()
     {
-        LeftCountUI.text = "Remaining Streches: " + numLeftStreches;
-        RightCountUI.text = "Remaining Streches: " + numRightStreches;
-        UpCountUI.text = "Remaining Streches: " + numUpStreches;
-        DownCountUI.text = "Remaining Streches: " + numDownStreches;
+        //PersistanceManager = GameObject.FindGameObjectWithTag("Singelton").GetComponent<PersistentManagerScript>();
+
+        //persistenceScript = PersistanceManager.GetComponent<PersistentManagerScript>();
+        //strechCount = {numLeftStreches, numRightStreches, numUpStreches, numDownStreches };
+        _manager = GameObject.FindFirstObjectByType<PersistentManagerScript>();
+
+        numLeftStreches = _manager.Singleton_numLeftStreches;
+        numRightStreches = _manager.Singleton_numRightStreches;
+        numUpStreches = _manager.Singleton_numUpStreches;
+        numDownStreches = _manager.Singleton_numDownStreches;
+
+        LeftCountUI.text = "Remaining Left Streches: " + numLeftStreches;
+        RightCountUI.text = "Remaining Right Streches: " + numRightStreches;
+        UpCountUI.text = "Remaining Down Streches: " + numUpStreches;
+        DownCountUI.text = "Remaining Up Streches: " + numDownStreches;
         holdTimeTextUI.text = "Hold that strech!";
         AmazingUI.enabled = false;
+
+        strechCount[0] = _manager.Singleton_numLeftStreches;
+        strechCount[1] = _manager.Singleton_numRightStreches;
+        strechCount[2] = _manager.Singleton_numUpStreches;
+        strechCount[3] = _manager.Singleton_numDownStreches;
     }
     
     void Update()
     {
+        
         //visual timer updates UI element. When done lowers strech count
         visualTimer();
+        numLeftStreches = _manager.Singleton_numLeftStreches;
+        numRightStreches = _manager.Singleton_numRightStreches;
+        numUpStreches = _manager.Singleton_numUpStreches;
+        numDownStreches = _manager.Singleton_numDownStreches;
+
+        //strechCount =[numLeftStreches,numRightStreches,numUpStreches,numDownStreches];
+        /*
+        LeftCountUI.text = "Remaining Left Streches: " + numLeftStreches;
+        RightCountUI.text = "Remaining Right Streches: " + numRightStreches;
+        UpCountUI.text = "Remaining Down Streches: " + numUpStreches;
+        DownCountUI.text = "Remaining Up Streches: " + numDownStreches;
+
+        strechCount[0] = _manager.Singleton_numLeftStreches;
+        strechCount[1] = _manager.Singleton_numRightStreches;
+        strechCount[2] = _manager.Singleton_numUpStreches;
+        strechCount[3] = _manager.Singleton_numDownStreches;*/
+
     }
 
     void visualTimer()
@@ -62,6 +112,11 @@ public class Objective_Spawner : MonoBehaviour
             {
                 print("Hold Done");
                 AmazingUI.enabled = true;
+
+                Photo_LHS.Play("snapshot");
+                Photo_LSH_SR.sprite = SkiPhotos[0];
+                Crowd_RHS.Play("Crowd_Rise");
+
                 lowerStrechCounter();
             }
         }
@@ -76,6 +131,12 @@ public class Objective_Spawner : MonoBehaviour
         if(countOnceFlag == true)
         {
             strechCount[localCurrentLocation] -= 1;
+
+            if (localCurrentLocation == 0) _manager.Singleton_numLeftStreches -= 1;
+            if (localCurrentLocation == 1) _manager.Singleton_numRightStreches -= 1;
+            if (localCurrentLocation == 2) _manager.Singleton_numDownStreches -= 1;
+            if (localCurrentLocation == 3) _manager.Singleton_numUpStreches -= 1;
+
             print("Direction count:"+strechCount[localCurrentLocation]);
             countOnceFlag = false;
             updateUI();
@@ -85,16 +146,16 @@ public class Objective_Spawner : MonoBehaviour
     void updateUI()
     {
         if(localCurrentLocation == 0){
-            LeftCountUI.text = "Remaining Streches: " + strechCount[localCurrentLocation].ToString();
+            LeftCountUI.text = "Remaining Left Streches: " + strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 1){
-            RightCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
+            RightCountUI.text = "Remaining Right Streches: " +strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 2){
-            UpCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
+            UpCountUI.text = "Remaining Down Streches: " +strechCount[localCurrentLocation].ToString();
         }
         if(localCurrentLocation == 3){
-            DownCountUI.text = "Remaining Streches: " +strechCount[localCurrentLocation].ToString();
+            DownCountUI.text = "Remaining Up Streches: " +strechCount[localCurrentLocation].ToString();
         }
     }
 
@@ -163,4 +224,24 @@ public class Objective_Spawner : MonoBehaviour
         }
         time += Time.deltaTime;
     }
+    /*
+    private void Awake()
+    {
+        //ensures we keep the first OG version around.
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        //get a refrence to the dropdown buttons
+        //on the level select screen
+        
+
+    }*/
+
 }

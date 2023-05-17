@@ -14,7 +14,7 @@ public class sceneChanger : MonoBehaviour
     {
         //unused -> get exercise count from singletons
         //PronationCount = PersistentManagerScript.Instance.numOfPronation;
-        print(PronationCount);
+        //print(PronationCount);
 
     }
 
@@ -24,16 +24,8 @@ public class sceneChanger : MonoBehaviour
         if (col.gameObject.tag == "Player")
         {
             if (RHS_Scene) SceneManager.LoadSceneAsync("MovingRightScene");
-            //Pronation
-            if (PronationCount > 0)
-            {
-                if (LHS_Scene)
-                {
-                    PronationCount--; //unused ATM
-                    SceneManager.LoadSceneAsync("MovingLeftScene");
-                }
-            }
-            if (BackToHome) SceneManager.LoadSceneAsync("topdownskigame");
+            if (LHS_Scene) SceneManager.LoadSceneAsync("MovingLeftScene");
+            if (BackToHome) SceneManager.LoadSceneAsync("new art");
         }
     }
 }

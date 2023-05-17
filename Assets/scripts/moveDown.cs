@@ -10,6 +10,7 @@ public class moveDown : MonoBehaviour
     [SerializeField] public float treeMaxSize = 10.0f;
     [SerializeField] public GameObject icon;
     [SerializeField] public float sidewaysAdjustment = 2.0f;
+    [SerializeField] public GameObject spriteMask;
 
 
     void Start()
@@ -30,6 +31,7 @@ public class moveDown : MonoBehaviour
         while(time < duration)
         {
             transform.localScale = Vector2.Lerp(new Vector2(0,0),new Vector2(treeMaxSize,treeMaxSize), time / duration);
+            spriteMask.transform.localPosition = Vector2.Lerp(new Vector2(-0.03f,3.27f), new Vector2(0.012f, -0.9f), time / (duration/3));
             time += Time.deltaTime;
             if(time > 1)
             {
@@ -59,7 +61,7 @@ public class moveDown : MonoBehaviour
             transform.position = Vector2.Lerp(startPosition, positionToMoveTo, time / duration);
 
             time += Time.deltaTime;
-            print(time);
+            //print(time);
 
             yield return null;
         }

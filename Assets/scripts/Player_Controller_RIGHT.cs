@@ -23,13 +23,18 @@ public class Player_Controller_RIGHT : MonoBehaviour
     public bool rightScene;
     public bool leftScene;
 
+    private float IMU_roll_normalized;
+
     public TextMeshProUGUI holdTimeTextUI;
     public TextMeshProUGUI notificationUI;
+
+    IMU_Controller IMU_controller;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        IMU_controller = GameObject.FindGameObjectWithTag("IMU").GetComponent<IMU_Controller>();
         startTime = Time.time;
         AmazingUI.enabled = false;
         crowdSprite.enabled = false;
@@ -42,6 +47,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
     {
         lockPlayerToBoundary();
         holdStrechTimer();
+        IMUdataNormalized();
 
         if (heldLongEnough == true)
         {
@@ -53,11 +59,18 @@ public class Player_Controller_RIGHT : MonoBehaviour
         //float direction_num = movementDirection();
         //StartCoroutine(startHoldTimer());   
     }
+    void IMUdataNormalized()
+    {
+        const int rollMin = -80;
+        const int rollMax = 80;
+        IMU_roll_normalized = (2 * ((IMU_controller.euler.x - rollMin) / (rollMax - rollMin)) - 1);
+        //print(IMU_roll_normalized);
+    }
 
     bool correctDirectionCheck()
     {
-        if (leftScene == true && Input.GetAxis("Horizontal") < 0) return true;
-        if (rightScene == true && Input.GetAxis("Horizontal") > 0) return true;
+        if (leftScene == true && IMU_roll_normalized < 0) return true;
+        if (rightScene == true && IMU_roll_normalized > 0) return true;
         else return false;
     }
 
@@ -110,12 +123,12 @@ public class Player_Controller_RIGHT : MonoBehaviour
    float movementDirection()
    {
         //tending towards... -1 is left, 1 is right
-        return Input.GetAxis("Horizontal");
+        return IMU_roll_normalized;// Input.GetAxis("Horizontal");
    }
 
    int strechCheck()
    {
-        if (Mathf.Abs(Input.GetAxis("Horizontal")) > deadSpace) {return 1;}
+        if (Mathf.Abs(IMU_roll_normalized) > deadSpace) {return 1;}
         else return 0;
    }
 
@@ -143,7 +156,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
         }
         if (col.gameObject.name == "JumpRunUp")
         {
-            if (Mathf.Abs(Input.GetAxis("Horizontal")) > deadSpace)
+            if (Mathf.Abs(IMU_roll_normalized) > deadSpace)
             {
                 greatJumpBool = true;
                 AmazingUI.enabled = true;
@@ -158,7 +171,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
         if (col.gameObject.name == "GoodJumpZone")
         {
             print("hit trigger");
-            if (Mathf.Abs(Input.GetAxis("Horizontal")) < deadSpace)
+            if (Mathf.Abs(IMU_roll_normalized) < deadSpace)
             {
                 if (greatJumpBool == true)
                 {

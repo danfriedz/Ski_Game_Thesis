@@ -5,8 +5,10 @@ using UnityEngine;
 public class collisionSpawner : MonoBehaviour
 {
     [SerializeField] public GameObject Tree_Drop;
+    [SerializeField] public GameObject Tree_Drop_Variation;
     [SerializeField] public GameObject Tree_Left;
     [SerializeField] public GameObject Tree_Right;
+    [SerializeField] public GameObject Tree_Right_smaller;
     [SerializeField] public float spawnFreq = 1.0f;
     [SerializeField] public bool spawnTop = false;
     [SerializeField] public bool spawnLeft = false;
@@ -23,11 +25,12 @@ public class collisionSpawner : MonoBehaviour
         //for hub screen. trees drop down
         if (spawnTop)
         {
-            //Pick a position within a set range to spawn object
-                        //Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),15,0);
-            Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),2.7f,0);
+            Vector3 randomizePosition = new Vector3(Random.Range(-8, 8),2.5f,0);
             //Spawn a predefined object
-            Instantiate(Tree_Drop, randomizePosition, Quaternion.identity);
+            int randomNum = Random.Range(0, 2);
+            if (randomNum == 0) {Instantiate(Tree_Drop, randomizePosition, Quaternion.identity);}
+            if (randomNum == 1) {Instantiate(Tree_Drop_Variation, randomizePosition, Quaternion.identity);}
+            
         }
         //for moving Left screen
         else if (spawnLeft)
@@ -40,9 +43,9 @@ public class collisionSpawner : MonoBehaviour
         //for moving Right screen
         else if (spawnRight)
         {
-            Vector3 randomizePositionTop = new Vector3(35,Random.Range(5,12),0);
+            Vector3 randomizePositionTop = new Vector3(35,Random.Range(5,7),0);
             Vector3 randomizePositionBot = new Vector3(35,Random.Range(-3,-12),0);
-            Instantiate(Tree_Right, randomizePositionTop, Quaternion.identity);
+            Instantiate(Tree_Right_smaller, randomizePositionTop, Quaternion.identity);
             Instantiate(Tree_Right, randomizePositionBot, Quaternion.identity);
         }
     }
