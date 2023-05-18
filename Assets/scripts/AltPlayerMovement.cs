@@ -12,7 +12,7 @@ public class AltPlayerMovement : MonoBehaviour
    [SerializeField] public Animator Crowd_RHS;
    [SerializeField] public Sprite[] SkiPhotos;
    [SerializeField] public bool altRotationFlag = true; //rotate in strech zone?
-   const float originYOffset = -2.5f;  //move player center position slightly to account for background
+   const float originYOffset = 0;  //move player center position slightly to account for background
 
     float IMU_horizontal_normalized;
     float IMU_vertical_normalized;
@@ -44,11 +44,24 @@ public class AltPlayerMovement : MonoBehaviour
         const int yawMin = -50;
         const int pitchMin = -70;
         const int pitchMax = 55;
+        const int rollMin = -80;
+        const int rollMax = 80;
 
-        IMU_horizontal_normalized = -1 * (2*((IMU_controller.euler.z - yawMin) / (yawMax - yawMin)) - 1);
-        IMU_vertical_normalized = 2 * ((IMU_controller.euler.y - pitchMin) / (pitchMax - pitchMin)) - 1;
-   }
-   void transformPlayerToLocation()
+        if (IMU_controller.dualSensorMode)
+        {
+            //uses imu with wrist as a ref point
+            //IMU_horizontal_normalized = -1 * (2 * ((IMU_controller.dualSensorZ - yawMin) / (yawMax - yawMin)) - 1);
+            IMU_horizontal_normalized = (2 * ((IMU_controller.dualSensorX - rollMin) / (rollMax - rollMin)) - 1);
+            IMU_vertical_normalized = 2 * ((IMU_controller.dualSensorY - pitchMin) / (pitchMax - pitchMin)) - 1;
+        }
+        if(IMU_controller.dualSensorMode == false)
+        {
+            //single sensor mode (hand only with no wrist refrence IMU)
+            IMU_horizontal_normalized = -1 * (2*((IMU_controller.euler.z - yawMin) / (yawMax - yawMin)) - 1);
+            IMU_vertical_normalized = 2 * ((IMU_controller.euler.y - pitchMin) / (pitchMax - pitchMin)) - 1;
+        }
+    }
+    void transformPlayerToLocation()
    {
         // offsets
         const int WorldPosX = 12, WorldPosY = 5;
@@ -71,7 +84,7 @@ public class AltPlayerMovement : MonoBehaviour
    {
       Vector3 minScreenBounds = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0));
       Vector3 maxScreenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
-      //y position changed to - 3.5 from - 1 to stop player entering foreground graphics
+      //y position changed to - 3.5 from - 1 to stop player entering background graphics
       transform.position = new Vector3(Mathf.Clamp(transform.position.x, minScreenBounds.x + 1, maxScreenBounds.x - 1),Mathf.Clamp(transform.position.y, minScreenBounds.y + 1, maxScreenBounds.y - 3.5f), transform.position.z);
    }
 

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Threading.Tasks;
 using System.IO;
+using Codice.Client.Common;
 
 public class IMU_Controller : MonoBehaviour
 {
@@ -16,15 +17,32 @@ public class IMU_Controller : MonoBehaviour
     private string _lineread1;
     private string[] _splitter1;
     private string[] storeSplitter1 = new string[30];
+    [SerializeField] public bool dualSensorMode = true;
+
+
+    //csv
+    private FileStream streamFile;
+    private StreamWriter writeStream;
+    private string timeStamp;
+    private string timeStampPrint;
+    private DateTime dateTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+    private DateTime dateTimeNow;
+    private TimeSpan timeElapsed;
+    private double timeElapsedInseconds;
 
     public  Vector3 euler = new Vector3(0, 0, 0);
-    private Vector3 euler2 = new Vector3(0, 0, 0);
+    public Vector3 euler2 = new Vector3(0, 0, 0);
+    public float dualSensorX = 0;
+    public float dualSensorY = 0;
+    public float dualSensorZ = 0;
+
     public Quaternion[] quat = new Quaternion[5];
     private char[] _delimiter = { 'R', 'r', 'o', 'l', 'P', 'p', 'i', 't', 'c', 'h', 'a', 'w', 'Y', 'x', 'y', 'z', ',', ':', '{', '}', '[', ']', '\"', ' ', '|' };
 
     private void Awake()
     {
-        //ensures we keep the first OG version around.
+        //ensures we keep the first version of this version around.
+        //destroys any duplicates
         if (Instance == null)
         {
             Instance = this;
@@ -34,10 +52,6 @@ public class IMU_Controller : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        //get a refrence to the dropdown buttons
-        //on the level select screen
-
     }
 
     void Start()
@@ -59,13 +73,12 @@ public class IMU_Controller : MonoBehaviour
             storeSplitter1[i] = "0";
         }
         isBluetooth = true;
-        //isStart = true;
     }
 
     void Update()
     {
         if (isBluetooth == true)
-        {   //IMUdata
+        {   // IMUdata
             // Receive from Bluetooth, each string it is assigned to is for each bluetooth 
             _lineread1 = _bluetoothobj.GetSensor1();
 
@@ -74,12 +87,9 @@ public class IMU_Controller : MonoBehaviour
             {
                 storeSplitter1[i] = _splitter1[i];
             }
-/*
-            //joint angle display
-            jointAngle.text = "Joint Angle: " + leftJointAngle.ToString();
-            RadialAngle.text = "Joint Angle: " + leftRadialAngle.ToString();
-            PronationAngle.text = "Joint Angle: " + leftPronationAngle.ToString();
-*/
+
+            //Sensor data comes in as a single long string for two IMUs
+
             //sensor 1 data
             euler.x = float.Parse(storeSplitter1[0]);
             euler.y = float.Parse(storeSplitter1[1]);
@@ -90,124 +100,74 @@ public class IMU_Controller : MonoBehaviour
             euler2.y = float.Parse(storeSplitter1[4]);
             euler2.z = float.Parse(storeSplitter1[5]);
 
+            dualSensorX = euler.x - euler2.x;
+            dualSensorY = euler.y - euler2.y;
+            dualSensorZ = euler.z - euler2.z;
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 StopBluetooth();
             }
-/*
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                //sensor 1 left wrist
-                tempXAngle = euler.x;
-                tempYAngle = euler.y;
-                tempZAngle = euler.z;
-
-
-                //sensor 2 left forearm
-                tempXAngleLF = euler2.x;
-                tempYAngleLF = euler2.y;
-                tempZAngleLF = euler2.z;
-            }
-*/
-/*
-            //Head position
-            actualXAngleH = (euler.x - tempXAngle);
-            actualYAngleH = (euler.y - tempYAngle);
-            actualZAngleH = (euler.z - tempZAngle);
-
-            //Debug.Log("x: " + actualXAngleH + "y: " + actualYAngleH + "z: " + actualZAngleH);
-            //left wrist postion
-            actualXAngle = (euler.x - tempXAngle + 34.78f);
-            actualYAngle = (euler.y - tempYAngle + 3.994f);
-            actualZAngle = (euler.z - tempZAngle - 2.884f);
-
-            //left forearm position
-            actualXAngleLF = (euler2.x - tempXAngleLF - 16.145f);
-            actualYAngleLF = (euler2.y - tempYAngleLF - 1.15f);
-            actualZAngleLF = (euler2.z - tempZAngleLF - 15.16f);
-
-            //Left wrist joint angle
-            leftJointAngle = -(actualYAngleH);
-            leftRadialAngle = -(actualZAngleH);
-            leftPronationAngle = actualXAngleH;
-*/
 
             //covert to quaternion
-            ConvertEulerToQuaternion(euler.x, euler.y, euler.z);
+            if (dualSensorMode)
+            {
+                ConvertEulerToQuaternion(dualSensorX, dualSensorY, dualSensorZ);
+            }
+            else
+            {
+                ConvertEulerToQuaternion(euler.x, euler.y, euler.z);
+            }
             //Debug.Log("x:" + quat[0].x + "y:" + quat[0].y + "z:" + quat[0].z + "w:" + quat[0].w);
 
-/*
-            if (stateController.isHead)
-            {
-                head.transform.localRotation = Quaternion.Euler(actualYAngleH, -actualZAngleH, -actualXAngleH);
-            }
 
-            //Extension/Flexion
-            if (stateController.isLeftExtension || stateController.isLeftRadial || stateController.isLeftPronation)
-            {
-                EnableControl();
-                if (isStart && stateController.isLeftExtension)
-                {
-                    LeftWristExtension();
-                }
-                else if (isStart && stateController.isLeftRadial)
-                {
-                    LeftWristRadial();
-                }
-                else if (isStart && stateController.isLeftPronation)
-                {
-                    LeftWristPronation();
-                }
-                else
-                {
-                    isPronation = true;
-                    isRadial = true;
-                    isExtension = true;//set first exercise to be extension when button not pressed.
-
-                }
-
-
-
-            }
-
-            if (resetTimer)
-            {
-                countDownTimer.text = "Timer";
-                countDownRadialTimer.text = "Timer";
-                countDownPronationTimer.text = "Timer";
-            }
-*/
-
-/*
             //Record into CSV file
             setTimeStamp();
-            if (isStart)
+            dateTimeNow = DateTime.Now;
+
+            timeElapsed = dateTimeNow.Subtract(dateTime);
+
+            timeElapsedInseconds = Convert.ToDouble(timeElapsed.TotalSeconds);
+            streamFile = new FileStream("C:\\Users\\danie\\Desktop\\log" + dateTimeNow + ".csv", FileMode.OpenOrCreate);
+            writeStream = new StreamWriter(streamFile);
+            if (dualSensorMode)
             {
-                dateTimeNow = DateTime.Now;
-
-                timeElapsed = dateTimeNow.Subtract(dateTime);
-
-                timeElapsedInseconds = Convert.ToDouble(timeElapsed.TotalSeconds);
-
-                writeStream.WriteLine(",,,," + timeElapsedInseconds.ToString() + "," + leftPronationAngle.ToString() + "," + leftJointAngle.ToString()
-                                    + "," + leftRadialAngle.ToString()+","+ quat[0].x.ToString() + "," + quat[0].y.ToString() + "," + quat[0].z.ToString() + "," + quat[0].w.ToString());
-
-                writeStream.Flush();
+                writeStream.WriteLine(",,,," + timeElapsedInseconds.ToString() + "," + euler.x.ToString() + "," + euler.y.ToString()
+                                + "," + euler.z.ToString() + "," + quat[0].x.ToString() + "," + quat[0].y.ToString() + "," + quat[0].z.ToString() + "," + quat[0].w.ToString());
             }
-*/
+
+            writeStream.Flush();
 
         }
     }
 
+    private void setTimeStamp()
+    {
+        string year;
+        string month;
+        string date;
+        string hour;
+        string minute;
+        string second;
 
+        year = DateTime.Now.Year.ToString("0000");
+        month = DateTime.Now.Month.ToString("00");
+        date = DateTime.Now.Day.ToString("00");
+        hour = DateTime.Now.Hour.ToString("00");
+        minute = DateTime.Now.Minute.ToString("00");
+        second = DateTime.Now.Second.ToString("00");
+
+        timeStamp = year + "-" + month + "-" + date + "-" + hour + "-" + minute + "-" + second;
+
+        timeStampPrint = year + "/" + month + "/" + date + ":- " + hour + ":" + minute + ":" + second;
+    }
+
+   
     public void StartBluetooth()
     {
         //IMUdata
         // Start receiving from bluetooth of both sensors instead of IP 
         Debug.Log("Starting");
-/*
-        Finger._bluetoothobj.Start();
-*/
         Debug.Log("Starting Bluetooth");
         // _bluetoothobj.Calibrate();
 
@@ -220,18 +180,7 @@ public class IMU_Controller : MonoBehaviour
             storeSplitter1[i] = "0";
         }
 
-        //Initializes hold time;
-
-/*
-        currentTime = sliderScript.holdTime;
-        storeCurrentTime = currentTime;
-        currentRadialTime = sliderScript.holdTimeRadial;
-        currentPronationTime = sliderScript.holdTimePronation;
-
-*/
         isBluetooth = true;
-        
-
     }
 
     public void ConvertEulerToQuaternion(float roll, float pitch, float yaw)

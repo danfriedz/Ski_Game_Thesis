@@ -39,10 +39,8 @@ public class Player_Controller_RIGHT : MonoBehaviour
         AmazingUI.enabled = false;
         crowdSprite.enabled = false;
         photoSprite.enabled = false;
-        //holdTimeTextUI = GetComponent<TMPro.TextMeshProUGUI>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         lockPlayerToBoundary();
@@ -55,16 +53,27 @@ public class Player_Controller_RIGHT : MonoBehaviour
             cameraAnimator.SetBool("closeCameraZoomIn", true);
             notificationUIPrint("Do A Flip!");
             StartCoroutine(Timer(3));
-        }
-        //float direction_num = movementDirection();
-        //StartCoroutine(startHoldTimer());   
+        } 
     }
     void IMUdataNormalized()
     {
+        const int yawMax = 40;
+        const int yawMin = -50;
+        const int pitchMin = -70;
+        const int pitchMax = 55;
         const int rollMin = -80;
         const int rollMax = 80;
-        IMU_roll_normalized = (2 * ((IMU_controller.euler.x - rollMin) / (rollMax - rollMin)) - 1);
-        //print(IMU_roll_normalized);
+
+        if (IMU_controller.dualSensorMode)
+        {
+            //uses imu with wrist as a ref point
+            IMU_roll_normalized = -1 * (2 * ((IMU_controller.dualSensorZ - yawMin) / (yawMax - yawMin)) - 1);
+        }
+        if (IMU_controller.dualSensorMode == false)
+        {
+            //single sensor mode (hand only with no wrist refrence IMU)
+            IMU_roll_normalized = (2 * ((IMU_controller.euler.x - rollMin) / (rollMax - rollMin)) - 1);
+        }
     }
 
     bool correctDirectionCheck()
