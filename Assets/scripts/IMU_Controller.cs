@@ -23,12 +23,28 @@ public class IMU_Controller : MonoBehaviour
     //csv
     private FileStream streamFile;
     private StreamWriter writeStream;
+    private FileStream streamFile_threshold;
+    private StreamWriter writeStream_threshold;
     private string timeStamp;
     private string timeStampPrint;
     private DateTime dateTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
     private DateTime dateTimeNow;
     private TimeSpan timeElapsed;
     private double timeElapsedInseconds;
+    private float Timecsv = 0;
+
+    private string sessionTimeStamp;
+
+    private bool thresholdMode = false;
+    private Vector3 ThresholdMin = new Vector3(0, 0, 0);
+    private Vector3 ThresholdMax = new Vector3(0, 0, 0);
+
+    private float tempXMin;
+    private float tempXMax;
+    private float tempYMin;
+    private float tempYMax;
+    private float tempZMin;
+    private float tempZMax;
 
     public  Vector3 euler = new Vector3(0, 0, 0);
     public Vector3 euler2 = new Vector3(0, 0, 0);
@@ -62,6 +78,18 @@ public class IMU_Controller : MonoBehaviour
     }
     public void Initialise()
     {
+        //csv
+        sessionTimeStamp = setTimeStamp();
+        streamFile = new FileStream("C:\\Users\\danie\\Documents\\Ski_Game_Thesis\\log\\" + sessionTimeStamp + ".csv", FileMode.OpenOrCreate);//, FileAccess.ReadWrite, FileShare.None);
+        writeStream = new StreamWriter(streamFile);
+        writeStream.WriteLine("delta time, euler x , euler y , euler z");// , quat x , quat y , quat z , quat w");
+
+        //threshold csv;
+        streamFile_threshold = new FileStream("C:\\Users\\danie\\Documents\\Ski_Game_Thesis\\log\\thresholds\\" + "Thresholds" + ".csv", FileMode.OpenOrCreate);//, FileAccess.ReadWrite, FileShare.None);
+        writeStream_threshold = new StreamWriter(streamFile_threshold);
+        writeStream.WriteLine("Min x, Max x, Min y, Max y, Min z, Max z");
+
+
         Debug.Log("Created");
         _bluetoothobj.Start();
         Debug.Log("Starting Bluetooth");
@@ -109,6 +137,20 @@ public class IMU_Controller : MonoBehaviour
                 StopBluetooth();
             }
 
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                thresholdMode = true;
+            }
+            if (Input.GetKeyUp(KeyCode.T))
+            {
+                thresholdMode = false;
+                print("exiting threshold recording mode");
+            }
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+                dumpThresholdCSV();
+            }
+
             //covert to quaternion
             if (dualSensorMode)
             {
@@ -118,30 +160,38 @@ public class IMU_Controller : MonoBehaviour
             {
                 ConvertEulerToQuaternion(euler.x, euler.y, euler.z);
             }
-            //Debug.Log("x:" + quat[0].x + "y:" + quat[0].y + "z:" + quat[0].z + "w:" + quat[0].w);
 
 
             //Record into CSV file
-            setTimeStamp();
-            dateTimeNow = DateTime.Now;
+            Timecsv += UnityEngine.Time.deltaTime;
 
-            timeElapsed = dateTimeNow.Subtract(dateTime);
-
-            timeElapsedInseconds = Convert.ToDouble(timeElapsed.TotalSeconds);
-            streamFile = new FileStream("C:\\Users\\danie\\Desktop\\log" + dateTimeNow + ".csv", FileMode.OpenOrCreate);
-            writeStream = new StreamWriter(streamFile);
             if (dualSensorMode)
             {
-                writeStream.WriteLine(",,,," + timeElapsedInseconds.ToString() + "," + euler.x.ToString() + "," + euler.y.ToString()
-                                + "," + euler.z.ToString() + "," + quat[0].x.ToString() + "," + quat[0].y.ToString() + "," + quat[0].z.ToString() + "," + quat[0].w.ToString());
+                writeStream.WriteLine(Timecsv.ToString() + "," + dualSensorX.ToString() + "," + dualSensorY.ToString()
+                                + "," + dualSensorZ.ToString()); //+ "," + quat[0].x.ToString() + "," + quat[0].y.ToString() + "," + quat[0].z.ToString() + "," + quat[0].w.ToString());
             }
-
             writeStream.Flush();
+            writeStream.WriteLine(System.Environment.NewLine);
+        }
 
+        //enter threshold recording mode
+        if (thresholdMode)
+        {
+            print("threshold recording mode activated");
+            //if value if less than current value overwrite current value
+            if (euler.x < tempXMin) { tempXMin = euler.x;}
+            if (euler.x > tempXMax) { tempXMax = euler.x;}
+            if (euler.y < tempYMin) { tempYMin = euler.y;}
+            if (euler.y > tempYMax) { tempYMax = euler.y;}
+            if (euler.z < tempZMin) { tempZMin = euler.z;}
+            if (euler.z > tempZMax) { tempZMax = euler.z;}
+            //Assign to two vector3 for min and max values.
+            ThresholdMin = new Vector3(tempXMin, tempYMin, tempZMin);
+            ThresholdMax = new Vector3(tempXMax, tempYMax, tempZMax);
         }
     }
 
-    private void setTimeStamp()
+    private string setTimeStamp()
     {
         string year;
         string month;
@@ -157,12 +207,22 @@ public class IMU_Controller : MonoBehaviour
         minute = DateTime.Now.Minute.ToString("00");
         second = DateTime.Now.Second.ToString("00");
 
-        timeStamp = year + "-" + month + "-" + date + "-" + hour + "-" + minute + "-" + second;
+        //timeStamp = year + "-" + month + "-" + date + "-" + hour + "-" + minute + "-" + second;
 
-        timeStampPrint = year + "/" + month + "/" + date + ":- " + hour + ":" + minute + ":" + second;
+        //timeStampPrint = year + "/" + month + "/" + date + ":- " + hour + ":" + minute + ":" + second;
+        return year + "-" + month + "-" + date + "-" + hour + "-" + minute + "-" + second;
     }
 
-   
+    public void dumpThresholdCSV()
+    {
+        writeStream_threshold.WriteLine(ThresholdMin.x.ToString() + "," + ThresholdMax.x.ToString() + "," + ThresholdMin.y.ToString()
+                            + "," + ThresholdMax.y.ToString() + "," + ThresholdMin.z.ToString() + "," + ThresholdMax.z.ToString());
+        writeStream_threshold.Flush();
+        writeStream_threshold.WriteLine(System.Environment.NewLine);
+        writeStream_threshold.Close();
+        print("Thresholds logfile created");
+    }
+
     public void StartBluetooth()
     {
         //IMUdata
@@ -210,6 +270,8 @@ public class IMU_Controller : MonoBehaviour
     {
         _bluetoothobj.Stop();
         Debug.Log("Stopped bluetooth");
+        isBluetooth = false;
+        writeStream.Close();
     }
 
 }
