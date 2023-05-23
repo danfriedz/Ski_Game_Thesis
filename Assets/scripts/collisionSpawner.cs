@@ -7,6 +7,7 @@ public class collisionSpawner : MonoBehaviour
     [SerializeField] public GameObject Tree_Drop;
     [SerializeField] public GameObject Tree_Drop_Variation;
     [SerializeField] public GameObject Tree_Left;
+    [SerializeField] public GameObject Tree_Left_smaller;
     [SerializeField] public GameObject Tree_Right;
     [SerializeField] public GameObject Tree_Right_smaller;
     [SerializeField] public float spawnFreq = 1.0f;
@@ -35,9 +36,9 @@ public class collisionSpawner : MonoBehaviour
         //for moving Left screen
         else if (spawnLeft)
         {
-            Vector3 randomizePositionTop = new Vector3(-35,Random.Range(5,12),0);
+            Vector3 randomizePositionTop = new Vector3(-35,Random.Range(5,7),0);
             Vector3 randomizePositionBot = new Vector3(-35,Random.Range(-3,-12),0);
-            Instantiate(Tree_Left, randomizePositionTop, Quaternion.identity);
+            Instantiate(Tree_Left_smaller, randomizePositionTop, Quaternion.identity);
             Instantiate(Tree_Left, randomizePositionBot, Quaternion.identity);
         }
         //for moving Right screen

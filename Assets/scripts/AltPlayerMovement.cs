@@ -40,26 +40,20 @@ public class AltPlayerMovement : MonoBehaviour
    void IMUdataNormalized()
    {
         // Yaw would be horizonatal axis, pitch vertical axis
-        const int yawMax = 40;
-        const int yawMin = -50;
-        const int pitchMin = -70;
-        const int pitchMax = 55;
-        const int rollMin = -80;
-        const int rollMax = 80;
 
-        if (IMU_controller.dualSensorMode)
-        {
+        //if (IMU_controller.dualSensorMode)
+        //{
             //uses imu with wrist as a ref point
             //IMU_horizontal_normalized = -1 * (2 * ((IMU_controller.dualSensorZ - yawMin) / (yawMax - yawMin)) - 1);
-            IMU_horizontal_normalized = (2 * ((IMU_controller.dualSensorX - rollMin) / (rollMax - rollMin)) - 1);
-            IMU_vertical_normalized = 2 * ((IMU_controller.dualSensorY - pitchMin) / (pitchMax - pitchMin)) - 1;
-        }
-        if(IMU_controller.dualSensorMode == false)
+            IMU_horizontal_normalized = (2 * ((IMU_controller.dualSensorX - IMU_controller.ThresholdMin.x) / (IMU_controller.ThresholdMax.x - IMU_controller.ThresholdMin.x)) - 1);
+            IMU_vertical_normalized = 2 * ((IMU_controller.dualSensorY - IMU_controller.ThresholdMin.y) / (IMU_controller.ThresholdMax.y - IMU_controller.ThresholdMin.y)) - 1;
+        //}
+        /*if(IMU_controller.dualSensorMode == false)
         {
             //single sensor mode (hand only with no wrist refrence IMU)
             IMU_horizontal_normalized = -1 * (2*((IMU_controller.euler.z - yawMin) / (yawMax - yawMin)) - 1);
             IMU_vertical_normalized = 2 * ((IMU_controller.euler.y - pitchMin) / (pitchMax - pitchMin)) - 1;
-        }
+        }*/
     }
     void transformPlayerToLocation()
    {
@@ -67,7 +61,15 @@ public class AltPlayerMovement : MonoBehaviour
         const int WorldPosX = 12, WorldPosY = 5;
         float x_Pos = IMU_horizontal_normalized * WorldPosX;
         float y_Pos = IMU_vertical_normalized * WorldPosY;
-        transform.position = Vector3.Lerp(transform.position, new Vector3(x_Pos,y_Pos + originYOffset,0),Time.deltaTime * 2);
+        if (IMU_controller.thresholdMode == true)
+        {
+            transform.position = Vector3.Lerp(transform.position, new Vector3(0, originYOffset, 0), Time.deltaTime * 2);
+        }
+        else
+        {
+            transform.position = Vector3.Lerp(transform.position, new Vector3(x_Pos,y_Pos + originYOffset,0),Time.deltaTime * 2);
+        }
+
    }
 
    //player y axis effects scale (to fake depth)
@@ -98,15 +100,12 @@ public class AltPlayerMovement : MonoBehaviour
 
 
 
-
-
-
    void OnTriggerEnter2D(Collider2D col)
    {
       //Check which region of the gamespace the player is in. 
       if((col.gameObject.tag == "Left") || (col.gameObject.tag == "Right") || (col.gameObject.tag == "Up") ||(col.gameObject.tag == "Down"))
       {
-         objScript.startStrechRoutine(col.gameObject.tag);
+            objScript.startStrechRoutine(col.gameObject.tag);
       }
       
       if(col.gameObject.tag == "obstacle")
@@ -133,15 +132,7 @@ public class AltPlayerMovement : MonoBehaviour
    void OnTriggerExit2D(Collider2D col) {
       if((col.gameObject.tag == "Left") || (col.gameObject.tag == "Right") || (col.gameObject.tag == "Up") ||(col.gameObject.tag == "Down"))
       {
-         objScript.startStrechRoutine("Stop");
+            objScript.startStrechRoutine("Stop");
       }
-
-      /*
-      if(col.gameObject.tag == "obstacle"){
-         if (Time.timeScale != 1.0f){
-            Time.timeScale = 1.0f;
-         }
-      }
-      */
    }
 }

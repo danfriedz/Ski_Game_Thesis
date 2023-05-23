@@ -5,8 +5,8 @@ using TMPro;
 
 public class Player_Controller_RIGHT : MonoBehaviour
 {
-    public float holdDuration = 5.0f;   //length of strech
-    public float deadSpace = 0.3f;      //controller deadspace
+    public float holdDuration = 5.0f;
+    [SerializeField] public float percentToStrechTowardsThreshold = 0.75f;
     private float elapsedTime = 0.0f;
     private bool heldLongEnough = false;
     private int numberOfJumps = 0;
@@ -57,23 +57,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
     }
     void IMUdataNormalized()
     {
-        const int yawMax = 40;
-        const int yawMin = -50;
-        const int pitchMin = -70;
-        const int pitchMax = 55;
-        const int rollMin = -80;
-        const int rollMax = 80;
-
-        if (IMU_controller.dualSensorMode)
-        {
-            //uses imu with wrist as a ref point
-            IMU_roll_normalized = -1 * (2 * ((IMU_controller.dualSensorZ - yawMin) / (yawMax - yawMin)) - 1);
-        }
-        if (IMU_controller.dualSensorMode == false)
-        {
-            //single sensor mode (hand only with no wrist refrence IMU)
-            IMU_roll_normalized = (2 * ((IMU_controller.euler.x - rollMin) / (rollMax - rollMin)) - 1);
-        }
+        IMU_roll_normalized = -1 * (2 * ((IMU_controller.dualSensorZ - IMU_controller.ThresholdMin.z) / (IMU_controller.ThresholdMax.z - IMU_controller.ThresholdMin.z)) - 1);
     }
 
     bool correctDirectionCheck()
@@ -137,7 +121,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
 
    int strechCheck()
    {
-        if (Mathf.Abs(IMU_roll_normalized) > deadSpace) {return 1;}
+        if (Mathf.Abs(IMU_roll_normalized) > percentToStrechTowardsThreshold) {return 1;}
         else return 0;
    }
 
@@ -165,7 +149,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
         }
         if (col.gameObject.name == "JumpRunUp")
         {
-            if (Mathf.Abs(IMU_roll_normalized) > deadSpace)
+            if (Mathf.Abs(IMU_roll_normalized) > percentToStrechTowardsThreshold)
             {
                 greatJumpBool = true;
                 AmazingUI.enabled = true;
@@ -180,7 +164,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
         if (col.gameObject.name == "GoodJumpZone")
         {
             print("hit trigger");
-            if (Mathf.Abs(IMU_roll_normalized) < deadSpace)
+            if (Mathf.Abs(IMU_roll_normalized) < percentToStrechTowardsThreshold)
             {
                 if (greatJumpBool == true)
                 {

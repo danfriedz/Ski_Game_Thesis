@@ -3,7 +3,7 @@ guid: 078e29457d6e7d14db2a85468816d858
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,6 +64,8 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -714,37 +717,36 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      upgraded_skier_with_animation_14: 639364417
-      upgraded_skier_with_animation_17: -1827982967
-      upgraded_skier_with_animation_9: -73742617
-      upgraded_skier_with_animation_10: -1009441128
-      upgraded_skier_with_animation_0: -1381933070
-      upgraded_skier_with_animation_18: -1866508072
-      upgraded_skier_with_animation_1: 577834205
-      upgraded_skier_with_animation_20: -1848459773
-      upgraded_skier_with_animation_8: -761228096
-      upgraded_skier_with_animation_23: 1701187697
-      upgraded_skier_with_animation_3: 819882122
-      upgraded_skier_with_animation_26: -1673171570
-      upgraded_skier_with_animation_15: 782401197
-      upgraded_skier_with_animation_12: 1202830503
-      upgraded_skier_with_animation_11: 536273948
+      upgraded_skier_with_animation_25: -1596053198
       upgraded_skier_with_animation_27: 48732062
       upgraded_skier_with_animation_7: 1433549641
+      upgraded_skier_with_animation_14: 639364417
+      upgraded_skier_with_animation_17: -1827982967
+      upgraded_skier_with_animation_3: 819882122
+      upgraded_skier_with_animation_8: -761228096
+      upgraded_skier_with_animation_9: -73742617
       upgraded_skier_with_animation_4: 1153418147
-      upgraded_skier_with_animation_5: -377240411
+      upgraded_skier_with_animation_10: -1009441128
       upgraded_skier_with_animation_19: 1074985842
+      upgraded_skier_with_animation_21: -197124910
+      upgraded_skier_with_animation_13: -100651757
+      upgraded_skier_with_animation_5: -377240411
+      upgraded_skier_with_animation_2: -627545002
+      upgraded_skier_with_animation_26: -1673171570
+      upgraded_skier_with_animation_0: -1381933070
+      upgraded_skier_with_animation_20: -1848459773
+      upgraded_skier_with_animation_15: 782401197
+      upgraded_skier_with_animation_18: -1866508072
+      upgraded_skier_with_animation_12: 1202830503
+      upgraded_skier_with_animation_22: 282267372
+      upgraded_skier_with_animation_11: 536273948
+      upgraded_skier_with_animation_6: -317146203
       upgraded_skier_with_animation_16: -116207223
       upgraded_skier_with_animation_24: -246272657
-      upgraded_skier_with_animation_25: -1596053198
-      upgraded_skier_with_animation_13: -100651757
-      upgraded_skier_with_animation_6: -317146203
-      upgraded_skier_with_animation_21: -197124910
-      upgraded_skier_with_animation_2: -627545002
-      upgraded_skier_with_animation_22: 282267372
-  spritePackingTag: 
+      upgraded_skier_with_animation_1: 577834205
+      upgraded_skier_with_animation_23: 1701187697
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
