@@ -38,20 +38,21 @@ public class IMU_Controller : MonoBehaviour
 
     [SerializeField] public GameObject ThresholdModeUI;
 
-    //Used in threshold assign mode
-    private float tempXMin;
-    private float tempXMax;
-    private float tempYMin;
-    private float tempYMax;
-    private float tempZMin;
-    private float tempZMax;
-
     //When assigning thresholds via user input we need a non zero minimum value.
     //new thresholds will only be assigned if they are greater than this value
     //this is because the user could asccidently assign very small values
     //which would make the player character move irratically (sort of like super high sensitivity)
     private Vector3 ThresholdMinViable = new Vector3(-30, -30, -20);
     private Vector3 ThresholdMaxViable = new Vector3(30, 30, 20);
+
+    //Used in threshold assign mode
+    private float tempXMin = 0;
+    private float tempXMax = 0;
+    private float tempYMin = 0;
+    private float tempYMax = 0;
+    private float tempZMin = 0;
+    private float tempZMax = 0;
+
     //-----------------------end treshold mode varbs---------------------
 
 
@@ -102,6 +103,12 @@ public class IMU_Controller : MonoBehaviour
         _bluetoothobj = new Server();
         Debug.Log("IUM_Controller Script Online");
         Initialise();
+        tempXMin = ThresholdMinViable.x;
+        tempXMax = ThresholdMaxViable.x;
+        tempYMin = ThresholdMinViable.y;
+        tempYMax = ThresholdMaxViable.y;
+        tempZMin = ThresholdMinViable.z;
+        tempZMax = ThresholdMaxViable.z;
     }
 
     public void Initialise()
@@ -110,12 +117,12 @@ public class IMU_Controller : MonoBehaviour
         sessionTimeStamp = setTimeStamp();
         streamFile = new FileStream("C:\\Users\\danie\\Documents\\Ski_Game_Thesis\\log\\" + sessionTimeStamp + ".csv", FileMode.OpenOrCreate);//, FileAccess.ReadWrite, FileShare.None);
         writeStream = new StreamWriter(streamFile);
-        writeStream.WriteLine("delta time, euler x , euler y , euler z");// , quat x , quat y , quat z , quat w");
+        writeStream.WriteLine("delta time, Euler x (Roll), Euler y (Pitch), Euler z (Yaw)");// , quat x , quat y , quat z , quat w");
 
         //---------threshold csv report --------------------
-        streamFile_threshold = new FileStream("C:\\Users\\danie\\Documents\\Ski_Game_Thesis\\log\\thresholds\\" + "Thresholds" + ".csv", FileMode.OpenOrCreate);//, FileAccess.ReadWrite, FileShare.None);
+        streamFile_threshold = new FileStream("C:\\Users\\danie\\Documents\\Ski_Game_Thesis\\log\\thresholds\\" + "Threshold_" + sessionTimeStamp + ".csv", FileMode.OpenOrCreate);//, FileAccess.ReadWrite, FileShare.None);
         writeStream_threshold = new StreamWriter(streamFile_threshold);
-        writeStream.WriteLine("Min x, Max x, Min y, Max y, Min z, Max z");
+        writeStream_threshold.WriteLine("Min x (Roll), Max x (Roll), Min y (Pitch), Max y (Pitch), Min z (Yaw), Max z (Yaw)");
 
         //start the bluetooth server
         Debug.Log("Created");
@@ -189,8 +196,8 @@ public class IMU_Controller : MonoBehaviour
             //      2) reading in the last recorded threshold value would be a nice strech goal
             if (Input.GetKeyDown(KeyCode.Y))
             {
-                dumpThresholdCSV();
                 applyThresholds();
+                dumpThresholdCSV();
                 deactivateThresholdModeUIElement();
             }
             //print thresholds (debugging)
@@ -221,6 +228,7 @@ public class IMU_Controller : MonoBehaviour
         //close to threshold flag
         //strech conditions are met when player is in the correct position AND the user is close to a threshold.
         //currentlyCloseToThresholdCheck();
+        print("cur x val:"+ tempXMin + "cur thres: "+ThresholdMin.x);
     }
     
 
@@ -268,8 +276,8 @@ public class IMU_Controller : MonoBehaviour
         writeStream_threshold.WriteLine(System.Environment.NewLine);
         writeStream_threshold.Close();
         print("Thresholds logfile created");
-        print("Mins: " + ThresholdMin);
-        print("Maxs: " + ThresholdMax);
+        //print("Mins: " + ThresholdMin);
+        //print("Maxs: " + ThresholdMax);
     }
 
     public void applyThresholds()
@@ -340,26 +348,26 @@ public class IMU_Controller : MonoBehaviour
     public void thresholdValueAssignment()
     {
         print("threshold recording mode activated");
-        //if value if less than current value overwrite current value
-        if (euler.x < tempXMin && euler.x > ThresholdMinViable.x) { tempXMin = euler.x; } else { tempXMin = ThresholdMinViable.x; }
-        if (euler.x > tempXMax && euler.x > ThresholdMaxViable.x) { tempXMax = euler.x; } else { tempXMax = ThresholdMaxViable.x; }
-        if (euler.y < tempYMin && euler.y > ThresholdMinViable.y) { tempYMin = euler.y; } else { tempYMin = ThresholdMinViable.y; }
-        if (euler.y > tempYMax && euler.y > ThresholdMaxViable.y) { tempYMax = euler.y; } else { tempYMax = ThresholdMaxViable.y; }
-        if (euler.z < tempZMin && euler.z > ThresholdMinViable.z) { tempZMin = euler.z; } else { tempZMin = ThresholdMinViable.z; }
-        if (euler.z > tempZMax && euler.z > ThresholdMaxViable.z) { tempZMax = euler.z; } else { tempZMax = ThresholdMaxViable.z; }
+        if (euler.x < tempXMin) { tempXMin = euler.x; }
+        if (euler.x > tempXMax) { tempXMax = euler.x; }
+        if (euler.y < tempYMin) { tempYMin = euler.y; }
+        if (euler.y > tempYMax) { tempYMax = euler.y; }
+        if (euler.z < tempZMin) { tempZMin = euler.z; }
+        if (euler.z > tempZMax) { tempZMax = euler.z; }
     }
 
     public void recordEulerValuesToCSV()
     {
         Timecsv += UnityEngine.Time.deltaTime;
 
-        if (dualSensorMode)
+        /*if (dualSensorMode)
         {
             writeStream.WriteLine(Timecsv.ToString() + "," + dualSensorX.ToString() + "," + dualSensorY.ToString()
                             + "," + dualSensorZ.ToString()); //+ "," + quat[0].x.ToString() + "," + quat[0].y.ToString() + "," + quat[0].z.ToString() + "," + quat[0].w.ToString());
-        }
-        writeStream.Flush();
-        writeStream.WriteLine(System.Environment.NewLine);
+        }*/
+        writeStream.WriteLine(Timecsv.ToString() + "," + dualSensorX.ToString() + "," + dualSensorY.ToString()
+                            + "," + dualSensorZ.ToString());
+        //writeStream.Flush();
     }
 
     public void StopBluetooth()
