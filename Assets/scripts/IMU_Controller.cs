@@ -21,18 +21,11 @@ public class IMU_Controller : MonoBehaviour
     private string[] _splitter1;
     private string[] storeSplitter1 = new string[30];
 
-
     //csv
     private FileStream streamFile;
     private StreamWriter writeStream;
     private FileStream streamFile_threshold;
     private StreamWriter writeStream_threshold;
-    //private string timeStamp;
-    //private string timeStampPrint;
-    //private DateTime dateTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-    //private DateTime dateTimeNow;
-    //private TimeSpan timeElapsed;
-    //private double timeElapsedInseconds;
     private float Timecsv = 0;
 
     private string sessionTimeStamp;
@@ -42,6 +35,8 @@ public class IMU_Controller : MonoBehaviour
     //This would be thershold values for full range of motion.
     public Vector3 ThresholdMin = new Vector3(-70, -70, -50);
     public Vector3 ThresholdMax = new Vector3(70, 55, 40);
+
+    [SerializeField] public GameObject ThresholdModeUI;
 
     //Used in threshold assign mode
     private float tempXMin;
@@ -179,6 +174,7 @@ public class IMU_Controller : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.T))
             {
                 thresholdMode = true;
+                activateThresholdModeUIElement();
             }
             if (Input.GetKeyUp(KeyCode.T))
             {
@@ -195,6 +191,7 @@ public class IMU_Controller : MonoBehaviour
             {
                 dumpThresholdCSV();
                 applyThresholds();
+                deactivateThresholdModeUIElement();
             }
             //print thresholds (debugging)
             if (Input.GetKeyDown(KeyCode.U))
@@ -304,6 +301,19 @@ public class IMU_Controller : MonoBehaviour
         isBluetooth = true;
     }
     */
+
+    public void activateThresholdModeUIElement()
+    {
+        
+        ThresholdModeUI.SetActive(true);
+    }
+
+    public void deactivateThresholdModeUIElement()
+    {
+
+        ThresholdModeUI.SetActive(false);
+    }
+
     public void ConvertEulerToQuaternion(float roll, float pitch, float yaw)
     {
 

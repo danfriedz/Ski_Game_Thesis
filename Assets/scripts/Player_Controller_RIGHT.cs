@@ -51,7 +51,7 @@ public class Player_Controller_RIGHT : MonoBehaviour
         {
             spawnJump();
             cameraAnimator.SetBool("closeCameraZoomIn", true);
-            notificationUIPrint("Do A Flip!");
+            notificationUIPrint("Here Comes The Jump!\nStop streching in the jump zone for\nExtra Rad Points!");
             StartCoroutine(Timer(3));
         } 
     }
@@ -81,10 +81,10 @@ public class Player_Controller_RIGHT : MonoBehaviour
                 //print("resetting timer");
                 notificationUIPrint("Hold That Stretch!");
             }
-            if (elapsedTime > holdDuration)
+            if (elapsedTime >= holdDuration)
             {
                 //print("Held for long enough");
-                notificationUIPrint("Here Comes The Jump!");
+                //notificationUIPrint("Here Comes The Jump!\nStop streching in the jump zone for\nExtra Rad Points!");
                 heldLongEnough = true;
             }
             if (elapsedTime > 4.0f)
