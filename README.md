@@ -1,3 +1,5 @@
-Welcome
+# Ski Game
 
-# Ski_Game_Thesis
+# Gameplay Video
+
+# Instructions
